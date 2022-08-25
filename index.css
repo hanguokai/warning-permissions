@@ -48,6 +48,7 @@ textarea {
 
 li {
   padding: 2px;
+  list-style-position: inside;
 }
 
 .error {
@@ -58,6 +59,11 @@ li {
 .warning {
   color: black;
   background-color: yellow;
+}
+
+.multipleHostWarning {
+  text-decoration: underline;
+  font-style: italic;
 }
 
 @media (prefers-color-scheme: dark) {

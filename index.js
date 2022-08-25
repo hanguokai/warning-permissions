@@ -1,4 +1,5 @@
 const TabSize = 2;// insert TabSize spaces for Tab
+var MultipleHostWarning; // Read and change your data on a number of websites
 
 // debounce for user input
 const delayExec = (function () {
@@ -61,6 +62,9 @@ class PermissionTest {
       for (let warning of result) {
         let li = document.createElement('li');
         li.textContent = warning;
+        if(warning === MultipleHostWarning) {
+          li.classList.add('multipleHostWarning');
+        }
         this.output.appendChild(li);
       }
 
@@ -101,11 +105,28 @@ class Manager {
   static init() {
     Manager.left = new PermissionTest("left-sidebar");
     Manager.right = new PermissionTest("right-sidebar");
+    Manager.initMultipleHostWarning();
   }
 
   static showDiff() {
     Manager.left.showDiff(Manager.right.result);
     Manager.right.showDiff(Manager.left.result);
+  }
+
+  static async initMultipleHostWarning() {
+    const manifest = {
+      name: "My Extension",
+      version: "1.0.0",
+      manifest_version: 3,
+      host_permissions: [
+        "https://a.com/*",
+        "https://b.com/*",
+        "https://c.com/*",
+        "https://d.com/*",
+        "https://e.com/*"
+      ]
+    };
+    MultipleHostWarning = (await chrome.management.getPermissionWarningsByManifest(JSON.stringify(manifest)))[0];
   }
 }
 
