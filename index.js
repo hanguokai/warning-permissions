@@ -52,6 +52,7 @@ class PermissionTest {
   async updateOutput(manifestStr) {
     try {
       let result = await chrome.management.getPermissionWarningsByManifest(manifestStr);
+      result.sort();
       
       const count = result.length;
       if (count == 0) {

@@ -43,10 +43,21 @@ textarea {
   font-family: 'Courier New', Courier, monospace;
   font-size: 14px;
   width: 100%;
+  line-height: 1.2;
+}
+
+li {
+  padding: 2px;
 }
 
 .error {
-  background-color: red;
+  color: red;
+  background-color: white;
+}
+
+.warning {
+  color: black;
+  background-color: yellow;
 }
 
 @media (prefers-color-scheme: dark) {
