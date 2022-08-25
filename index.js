@@ -53,13 +53,9 @@ class PermissionTest {
     try {
       let result = await chrome.management.getPermissionWarningsByManifest(manifestStr);
       result.sort();
+      this.result = result;
       
-      const count = result.length;
-      if (count == 0) {
-        this.outputTitle.textContent = 'No warning permission';
-      } else {
-        this.outputTitle.textContent = `${count} warning permission${count > 1 ? 's' : ''}`;
-      }
+      this.outputTitle.textContent = result.length == 0 ? 'No warning permission' : 'Warning permissions';
 
       this.output.innerHTML = '';
       for (let warning of result) {
@@ -70,15 +66,47 @@ class PermissionTest {
 
       this.outputTitle.classList.remove("error");
     } catch (e) {
+      this.result = undefined;
       this.outputTitle.classList.add("error");
       this.outputTitle.textContent = 'Input Error: ' + e.message;
       this.output.innerHTML = '';
     }
+    Manager.showDiff();
+  }
+
+  showDiff(otherSideResult) {
+    if(this.result === undefined) {
+      return;
+    }
+
+    if(otherSideResult === undefined) {
+      // clear all warning
+      for (let li of this.output.children) {
+        li.classList.remove('warning');
+      }
+      return;
+    }
+
+    for (let i = 0; i < this.result.length; i++) {
+      if (!otherSideResult.includes(this.result[i])) {
+        this.output.children[i].classList.add('warning');
+      } else {
+        this.output.children[i].classList.remove('warning');
+      }
+    }
   }
 }
 
-function init() {
-  let left = new PermissionTest("left-sidebar");
-  let right = new PermissionTest("right-sidebar");
+class Manager {
+  static init() {
+    Manager.left = new PermissionTest("left-sidebar");
+    Manager.right = new PermissionTest("right-sidebar");
+  }
+
+  static showDiff() {
+    Manager.left.showDiff(Manager.right.result);
+    Manager.right.showDiff(Manager.left.result);
+  }
 }
-init();
+
+Manager.init();
