@@ -11,7 +11,27 @@
   <header><h1>Permissions With Warnings</h1></header>
   <div id="left-sidebar"></div>
   <div id="right-sidebar"></div>
-  <footer>Good luck!</footer>
+  <footer><a href="#" id="help-open">Help</a></footer>
+
+  <dialog id="help-dialog">
+    <div>
+      <h3>What is permissions and warnings?</h3>
+      <p>See official document <a href="https://developer.chrome.com/docs/extensions/mv3/permission_warnings/" target="_blank">Declare permissions and warn users</a>.</p>
+      <p>In <code>manifest.json</code>, <code>"permissions"</code> and <code>"host_permissions"</code> can generate warnings. But <code>"optional_permissions"</code> and <code>"optional_host_permissions"</code> don't generate warnings.</p>
+      <p>In addition, <code>"content_scripts"</code> also generates warnings like <code>"host_permissions"</code>. Other declarations, such as overrides new tab page, may also generate warnings.</p>
+
+      <h3>Some notes:</h3>
+      <ul>
+        <li>Please set the correct <code>"manifest_version"</code>. Some permissions are only available in certain versions.</li>
+        <li>When there are more than 3 independent host permissions, the warning message only displays <i>"Read and change your data on a number of websites"</i>. So be careful to check these host permissions.</li>
+        <li>This is just a tool, not guaranteed to be 100% correct. Sometimes the browser has bugs.</li>
+      </ul>
+
+      <h3>How this extension is implemented?</h3>
+      <p>It only uses <a href="https://developer.chrome.com/docs/extensions/reference/management/#method-getPermissionWarningsByManifest" target="_blank"><code>chrome.management.getPermissionWarningsByManifest()</code></a> method, so no special permission is required. By the way, <code>getPermissionWarningsById()</code> method and <code>ExtensionInfo</code> include users granted optional permissions, so they are not suitable for checking warning permissions.</p>
+    </div>
+    <div><button id="help-close">Close</button></div>
+  </dialog>
 
   <template id="workspace">
     <!-- manifest input -->

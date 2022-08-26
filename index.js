@@ -130,4 +130,22 @@ class Manager {
   }
 }
 
+class Help {
+  static init() {
+    Help.dialog = document.getElementById('help-dialog');
+    document.getElementById('help-open').addEventListener('click', Help.show);
+    document.getElementById('help-close').addEventListener('click', Help.close);
+  }
+
+  static show(e) {
+    e.preventDefault();
+    Help.dialog.showModal();
+  }
+
+  static close(e) {
+    Help.dialog.close();
+  }
+}
+
 Manager.init();
+Help.init();

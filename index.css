@@ -46,7 +46,7 @@ textarea {
   line-height: 1.2;
 }
 
-li {
+.output li {
   padding: 2px;
   list-style-position: inside;
 }
@@ -65,6 +65,37 @@ li {
   text-decoration: underline;
   font-style: italic;
 }
+
+dialog {
+  width: clamp(200px, 80%, 800px);
+  border: none;
+  border-radius: 12px;
+  padding: 1rem;
+}
+dialog::backdrop {
+  backdrop-filter: blur(3px);
+}
+dialog button {
+  user-select: none;
+  border: 1px solid #007bff;
+  padding: .375rem .75rem;
+  font-size: 1rem;
+  line-height: 1.4;
+  border-radius: .25rem;
+  color: #fff;
+  background-color: #007bff;
+  cursor: pointer;
+}
+dialog ul {
+  padding-left: 1rem;
+}
+dialog li {
+  padding: 2px;
+}
+dialog > div:last-child {
+  margin-top: 1.5rem;
+}
+
 
 @media (prefers-color-scheme: dark) {
   #left-sidebar {
