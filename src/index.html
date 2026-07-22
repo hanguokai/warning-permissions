@@ -5,43 +5,141 @@
   <meta name="color-scheme" content="light dark">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" href="index.css">
-  <title>Permissions With Warnings</title>
+  <title>Permissions With Warnings - Manifest IDE & Diff</title>
 </head>
 <body>
-  <header><h1>Permissions With Warnings</h1></header>
-  <div id="left-sidebar"></div>
-  <div id="right-sidebar"></div>
-  <footer><a href="#" id="help-open">Help</a></footer>
+  <header class="app-header">
+    <div class="brand">
+      <img src="icon.png" alt="Logo" class="app-logo">
+      <div>
+        <h1>Permissions With Warnings</h1>
+        <span class="app-subtitle">Manifest Permissions & Warning Diff Tool</span>
+      </div>
+    </div>
+    
+    <div class="global-actions">
+      <div class="view-switch" role="tablist">
+        <button id="view-mode-editor" class="tab-btn active" role="tab" aria-selected="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+          Side-by-Side Editor
+        </button>
+        <button id="view-mode-diff" class="tab-btn" role="tab" aria-selected="false">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          JSON Code Diff
+        </button>
+      </div>
+
+      <div class="divider"></div>
+
+      <button id="action-swap" class="btn btn-secondary" title="Swap Left and Right manifests">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><line x1="3" y1="5" x2="21" y2="5"/><polyline points="7 23 3 19 7 15"/><line x1="21" y1="19" x2="3" y2="19"/></svg>
+        Swap Panes
+      </button>
+
+      <button id="action-format-all" class="btn btn-secondary" title="Format JSON in both editors">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+        Format Both
+      </button>
+
+      <label class="toggle-label" title="Synchronize scrolling between left and right editors">
+        <input type="checkbox" id="toggle-sync-scroll" checked>
+        <span>Sync Scroll</span>
+      </label>
+
+      <div class="divider"></div>
+
+      <button id="help-open" class="btn btn-icon" title="Help & Documentation">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Help
+      </button>
+    </div>
+  </header>
+
+  <!-- Editor Mode Grid View -->
+  <main id="editors-view" class="main-container active">
+    <section id="left-sidebar" class="pane-container"></section>
+    <section id="right-sidebar" class="pane-container"></section>
+  </main>
+
+  <!-- JSON Text Diff View -->
+  <main id="diff-view" class="main-container">
+    <div class="diff-header">
+      <div class="diff-title">
+        <span>Left Manifest (Base) vs Right Manifest (Target) Code Diff</span>
+        <span id="diff-stats" class="diff-stats-pill">0 lines changed</span>
+      </div>
+    </div>
+    <div id="diff-content" class="diff-content-container"></div>
+  </main>
 
   <dialog id="help-dialog">
-    <div>
-      <h3>What is permissions and warnings?</h3>
-      <p>See official document <a href="https://developer.chrome.com/docs/extensions/mv3/permission_warnings/" target="_blank">Declare permissions and warn users</a>.</p>
-      <p>In <code>manifest.json</code>, <code>"permissions"</code> and <code>"host_permissions"</code> can generate warnings. But <code>"optional_permissions"</code> and <code>"optional_host_permissions"</code> don't generate warnings.</p>
-      <p>In addition, <code>"content_scripts"</code> also generates warnings like <code>"host_permissions"</code>. Other declarations, such as overrides new tab page, may also generate warnings.</p>
-
-      <h3>Some notes:</h3>
-      <ul>
-        <li>Please set the correct <code>"manifest_version"</code>. Some permissions are only available in certain versions.</li>
-        <li>When there are more than 3 independent host permissions, the warning message only displays <i>"Read and change your data on a number of websites"</i>. So be careful to check these host permissions.</li>
-        <li>This is just a tool, not guaranteed to be 100% correct. Sometimes the browser has bugs.</li>
-      </ul>
-
-      <h3>How this extension is implemented?</h3>
-      <p>It only uses <a href="https://developer.chrome.com/docs/extensions/reference/management/#method-getPermissionWarningsByManifest" target="_blank"><code>chrome.management.getPermissionWarningsByManifest()</code></a> method, so no special permission is required. By the way, <code>getPermissionWarningsById()</code> method and <code>ExtensionInfo</code> include users granted optional permissions, so they are not suitable for checking warning permissions.</p>
+    <div class="dialog-header">
+      <h2>Permissions & Warning Guide</h2>
+      <button id="help-close" class="btn-close" aria-label="Close">&times;</button>
     </div>
-    <div><button id="help-close">Close</button></div>
+    <div class="dialog-body">
+      <h3>What are permissions and warnings?</h3>
+      <p>See official document <a href="https://developer.chrome.com/docs/extensions/mv3/permission_warnings/" target="_blank" rel="noreferrer">Declare permissions and warn users</a>.</p>
+      <p>In <code>manifest.json</code>, <code>"permissions"</code> and <code>"host_permissions"</code> generate install/update warnings. <code>"optional_permissions"</code> and <code>"optional_host_permissions"</code> do NOT generate warnings on install.</p>
+      <p>In addition, <code>"content_scripts"</code> also generates host warnings similar to <code>"host_permissions"</code>. Special declarations (like overriding the New Tab page) can also trigger warnings.</p>
+
+      <h3>Important Developer Notes</h3>
+      <ul>
+        <li><strong>Manifest Version:</strong> Set correct <code>"manifest_version"</code> (MV2 vs MV3). Certain permissions are restricted by manifest version.</li>
+        <li><strong>Multiple Hosts Threshold:</strong> Declaring 4 or more independent host permissions collapses warnings into: <i>"Read and change your data on a number of websites"</i>. Be careful when adding hosts as this may disable extension updates automatically!</li>
+        <li><strong>Tool Scope:</strong> Uses Chrome's native <code>chrome.management.getPermissionWarningsByManifest()</code> API to provide exact browser permission warnings without requesting extra permissions.</li>
+      </ul>
+    </div>
   </dialog>
 
   <template id="workspace">
-    <!-- manifest input -->
-    <div>
-      <textarea autocomplete="off" autocorrect="off" spellcheck="false" rows="30"></textarea>
-    </div>
+    <div class="pane-wrapper">
+      <!-- IDE Editor Header -->
+      <div class="editor-toolbar">
+        <div class="pane-title-group">
+          <span class="pane-badge"></span>
+          <span class="json-status-pill valid">JSON Valid</span>
+        </div>
 
-    <!-- output -->
-    <h3 class="output-title"></h3>
-    <ol class="output"></ol>
+        <div class="pane-actions">
+          <select class="preset-select" title="Load example manifest preset">
+            <option value="" disabled selected>Presets...</option>
+            <option value="mv3-basic">MV3 Basic</option>
+            <option value="mv3-content-script">MV3 Content Script</option>
+            <option value="mv3-declarative-net">MV3 DeclarativeNetRequest</option>
+            <option value="mv2-legacy">MV2 Legacy Example</option>
+            <option value="empty">Empty Skeleton</option>
+          </select>
+          <button class="btn-tool btn-format" title="Format JSON (Ctrl/Cmd+Shift+F)">Format</button>
+          <button class="btn-tool btn-copy" title="Copy manifest JSON">Copy</button>
+          <label class="btn-tool btn-upload" title="Upload manifest.json file">
+            Upload
+            <input type="file" class="file-input" accept=".json,application/json" hidden>
+          </label>
+        </div>
+      </div>
+
+      <!-- IDE Editor Code Container -->
+      <div class="ide-editor-container">
+        <div class="editor-gutter"></div>
+        <div class="editor-area">
+          <pre class="code-highlight" aria-hidden="true"><code></code></pre>
+          <textarea class="code-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+        </div>
+      </div>
+
+      <!-- Error Toast / Message Banner -->
+      <div class="error-banner hidden"></div>
+
+      <!-- Output / Permission Warnings Panel -->
+      <div class="output-panel">
+        <div class="output-header">
+          <h3 class="output-title">Warning Permissions</h3>
+          <div class="diff-summary-badges"></div>
+        </div>
+        <ul class="warning-list"></ul>
+      </div>
+    </div>
   </template>
 
   <script type="text/javascript" src="index.js"></script>
